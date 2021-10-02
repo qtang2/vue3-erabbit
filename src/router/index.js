@@ -18,7 +18,13 @@ const routes = [
 
 const router = createRouter({
   history: createWebHashHistory(),
-  routes
+  routes,
+  scrollBehavior () {
+    // every time routes change where page should go
+    // vue2 : x, horizontal scroll length, y vertical
+    // vue3 : use left and top instead
+    return { left: 0, top: 0 }
+  }
 })
 
 export default router
