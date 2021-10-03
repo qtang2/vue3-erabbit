@@ -3,8 +3,7 @@ import { createStore } from 'vuex'
 import user from './modules/user'
 import cart from './modules/cart'
 import category from './modules/category'
-
-import createPersistedstate from 'vuex-persistedstate'
+import createPersistedState from 'vuex-persistedstate'
 
 export default createStore({
   modules: {
@@ -13,7 +12,7 @@ export default createStore({
     category
   },
   plugins: [
-    createPersistedstate({
+    createPersistedState({
       key: 'erabbit-client-pc-store',
       paths: ['user', 'cart']
     })

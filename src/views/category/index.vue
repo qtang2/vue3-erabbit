@@ -1,16 +1,16 @@
 <template>
   <div class="top-category">
     <div class="container">
+      <!-- when only change component name, animation wont happen because component didnt change -->
+      <!-- so need to add key attri, key change means whole component change, the component will be generate again, so animation will happen -->
+      <!-- mode means first out then in -->
       <!-- bread -->
       <XtxBread>
         <XtxBreadItem to="/">首页</XtxBreadItem>
-        <!-- mode means first out then in -->
         <Transition name="fade-right" mode="out-in">
-          <!-- when only change component name, animation wont happen because component didnt change -->
-          <!-- so need to add key attri, key change means whole component change, the component will be generate again, so animation will happen -->
-          <XtxBreadItem :key="topCategory.id">{{
-            topCategory.name
-          }}</XtxBreadItem>
+          <XtxBreadItem :key="topCategory.id">
+            {{ topCategory.name }}
+          </XtxBreadItem>
         </Transition>
       </XtxBread>
 
@@ -78,10 +78,16 @@ export default {
       subList.value = data.result.children
     })
 
+    // why need to watch topCategory id ?
+    // Because 点击topCategory 居家/美食等，在routes上 category/id， id 有改变
+    // 但是路由规则没有变， 所以category 页面不会重新渲染，所以在setup里面执行getSubList 只会执行一次
+    // 由此，需要监听 category/id 下面id 的变化，只要改变了就去重新执行getSubList func
+    // 从而 页面数据才会更新
     watch(() => route.params.id, (newVal) => {
       // only top category id change need to send request, sub cate not send request
       if (newVal && `/category/${newVal}` === route.path) getSubList()
     }, { immediate: true })
+    // immediate true表示第一次渲染页面也执行getSubList
 
     return { sliders, topCategory, subList }
   }

@@ -8,11 +8,14 @@ export default {
    * this h func is createElement func, having 3 params: tag name, tag attributes, tag children nodes
    */
   render () {
+    // NOTICE: slots will get your comment as well, when using it
+    // dont add any comment in that block
     const items = this.$slots.default()
+
     const dynamicItems = []
     items.forEach((item, i) => {
       dynamicItems.push(item)
-      if (i < items.length - 1) {
+      if (i < (items.length - 1)) {
         dynamicItems.push(h('i', { class: 'iconfont icon-angle-right' }))
       }
     })
