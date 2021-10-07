@@ -1,5 +1,5 @@
 <template>
-  <div class="xtx-checkbox" @click="changeChecked">
+  <div class="xtx-checkbox" @click="changeChecked()">
     <i v-if="checked" class="iconfont icon-checked"></i>
     <i v-else class="iconfont icon-unchecked"></i>
     <span v-if="$slots.default"><slot /></span>
@@ -7,7 +7,7 @@
 </template>
 <script>
 import { useVModel } from '@vueuse/core'
-// 父子组件数据双向绑定： v-model ===> :modelValue  + :update:modelValue
+// v-model  ====>  :modelValue  +   @update:modelValue
 export default {
   name: 'XtxCheckbox',
   props: {
@@ -17,36 +17,21 @@ export default {
     }
   },
   setup (props, { emit }) {
-    /**
-     * use @vueuse/core
-     */
+    // 使用useVModel实现双向数据绑定v-model指令
+    // 1. 使用props接收modelValue
+    // 2. 使用useVModel来包装props中的modelValue属性数据
+    // 3. 在使用checked.value就是使用父组件数据
+    // 4. 在使用checked.value = '数据' 赋值，触发emit('update:modelvalue', '数据')
     const checked = useVModel(props, 'modelValue', emit)
     const changeChecked = () => {
       const newVal = !checked.value
+      // 通知父组件
       checked.value = newVal
-
-      // 复选框本身change 时间
+      // 让组件支持change事件
       emit('change', newVal)
     }
     return { checked, changeChecked }
-
-    /**
-     * traditional way to implement
-     */
-    /* const checked = ref(false)
-
-    const changeChecked = () => {
-      checked.value = !checked.value
-      emit('update:modelValue', checked.value)
-    }
-
-    watch(() => props.modelValue, () => {
-      checked.value = props.modelValue
-    }, { immediate: true })
-
-    return { checked, changeChecked } */
   }
-
 }
 </script>
 <style scoped lang="less">

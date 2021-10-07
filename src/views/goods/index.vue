@@ -10,7 +10,7 @@
         <XtxBreadItem :to="`/category/sub/${goods.categories[0].id}`">{{
           goods.categories[0].name
         }}</XtxBreadItem>
-        <XtxBreadItem to="/">{{ goods.name }}</XtxBreadItem>
+        <XtxBreadItem>{{ goods.name }}</XtxBreadItem>
       </XtxBread>
       <!-- 商品信息 -->
       <div class="goods-info">
@@ -26,7 +26,7 @@
             @change="changeSku"
           />
           <XtxNumbox label="数量" v-model="num" :max="goods.inventory" />
-          <XtxButton type="primary" style="margin-top: 20px"
+          <XtxButton @click="insertCart" type="primary" style="margin-top: 20px"
             >加入购物车</XtxButton
           >
         </div>
@@ -63,6 +63,8 @@ import GoodsHot from './components/goods-hot'
 import GoodsWarn from './components/goods-warn'
 import { useRoute } from 'vue-router'
 import { findGoods } from '@/api/product'
+import Message from '@/components/library/Message'
+import { useStore } from 'vuex'
 export default {
   name: 'XtxGoodsPage',
   components: { GoodsRelevant, GoodsImage, GoodsSales, GoodsName, GoodsSku, GoodsTabs, GoodsHot, GoodsWarn },
@@ -75,15 +77,48 @@ export default {
         goods.value.oldPrice = sku.oldPrice
         goods.value.inventory = sku.inventory
       }
+
+      // currSku could be empty if not all specs has completed
+      currSku.value = sku
     }
 
     provide('goods', goods)
 
+    // quality of the goods
     const num = ref(1)
 
-    return { goods, changeSku, num }
+    const currSku = ref(null)
+    const store = useStore()
+    const insertCart = () => {
+      if (currSku.value && currSku.value.skuId) {
+        // choose all specs
+        const { skuId, price, specsText: attrsText, inventory: stock } = currSku.value
+        const { id, name, mainPictures } = goods.value
+        store.dispatch('cart/insertCart', {
+          skuId,
+          attrsText,
+          stock,
+          id,
+          name,
+          price,
+          nowPrice: price,
+          picture: mainPictures[0],
+          selected: true,
+          isEffective: true,
+          count: num.value
+        }).then(() => {
+          Message({ type: 'success', text: '添加购物车成功' })
+        })
+      } else {
+        Message({ text: '请选择完整商品规格' })
+      }
+    }
+
+    return { goods, changeSku, num, insertCart }
   }
 }
+
+// ------------------not in setup----------------
 const useGoods = () => {
   const goods = ref(null)
   const route = useRoute()
