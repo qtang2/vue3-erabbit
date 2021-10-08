@@ -1,4 +1,4 @@
-import { getNewCartGoods } from '@/api/cart'
+import { findCartList, getNewCartGoods, mergeLocalCart, insertCart, deleteCart, updateCart, checkAllCart } from '@/api/cart'
 
 export default {
   namespaced: true,
@@ -20,6 +20,27 @@ export default {
     // effective total amount
     validAmount (state, getters) {
       return getters.validList.reduce((p, c) => p + c.count * c.nowPrice * 100, 0) / 100
+    },
+    // invalid goods
+    invalidList (state) {
+      return state.list.filter(goods => goods.stock <= 0 || !goods.isEffective)
+    },
+    // chosen goods
+    selectedList (state, getters) {
+      return getters.validList.filter(goods => goods.selected)
+    },
+    // chose goods total
+    selectedTotal (state, getters) {
+      return getters.selectedList.reduce((p, c) => p + c.count, 0)
+    },
+    // chose goods amount
+    selectedAmount (state, getters) {
+      return getters.selectedList.reduce((p, c) => p + c.count * c.nowPrice * 100, 0) / 100
+      // return getters.validList.reduce((p, c) => p + c.count * Math.round(c.nowPrice * 100), 0) / 100
+    },
+    // is selected all goods
+    isCheckAll (state, getters) {
+      return getters.validList.length !== 0 && getters.selectedList.length === getters.validList.length
     }
   },
   mutations: {
@@ -51,15 +72,30 @@ export default {
           updateGoods[key] = goods[key]
         }
       }
+    },
+    deleteCart (state, skuId) {
+      const index = state.list.findIndex(item => item.skuId === skuId)
+      state.list.splice(index, 1)
+    },
+    // set cart list, can set to empty can renew
+    setCartList (state, list) {
+      state.list = list
     }
   },
   actions: {
+    // add good to cart
     insertCart (ctx, payload) {
       // 1. insertCart when login
       // 2. insertCart when not login
       return new Promise((resolve, reject) => {
         if (ctx.rootState.user.profile.token) {
-          // TODO: logged in
+          // logged in
+          insertCart({ skuId: payload.skuId, count: payload.count }).then(() => {
+            return findCartList().then(data => {
+              ctx.commit('setCartList', data.result)
+              resolve()
+            })
+          })
         } else {
           // no login
           ctx.commit('insertCart', payload)
@@ -67,10 +103,15 @@ export default {
         }
       })
     },
+    // get latest goods inof and update cart
     findCart (ctx) {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.user.profile.token) {
-          // TODO: logged in
+          // logged in
+          findCartList().then(data => {
+            ctx.commit('setCartList', data.result)
+            resolve()
+          })
         } else {
           // no login
           // send requests based on how many goods you have, after all request  succeed, then update local cart data
@@ -89,6 +130,127 @@ export default {
           })
         }
       })
+    },
+    // delete single product in cart
+    deleteCart (ctx, skuId) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.profile.token) {
+          deleteCart([skuId]).then(() => {
+            return findCartList().then(data => {
+              ctx.commit('setCartList', data.result)
+              resolve()
+            })
+          })
+        } else {
+          ctx.commit('deleteCart', skuId)
+          resolve()
+        }
+      })
+    },
+    // update cart goods info
+    updateCart (ctx, payload) {
+      // payload must have skuId, might have selected, count
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.profile.token) {
+          // logged in
+          updateCart(payload).then(() => {
+            return findCartList().then(data => {
+              ctx.commit('setCartList', data.result)
+              resolve()
+            })
+          })
+        } else {
+          // no login
+          ctx.commit('updateCart', payload)
+          resolve()
+        }
+      })
+    },
+    // check or cancel selected all goods in cart
+    checkAllCart (ctx, selected) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.profile.token) {
+          // logged in
+          const ids = ctx.getters.validList.map(item => item.skuId)
+          checkAllCart({ selected, ids }).then(() => {
+            return findCartList().then(data => {
+              ctx.commit('setCartList', data.result)
+              resolve()
+            })
+          })
+        } else {
+          // no login
+          ctx.getters.validList.forEach(goods => {
+            ctx.commit('updateCart', { skuId: goods.skuId, selected })
+          })
+          resolve()
+        }
+      })
+    },
+    // batch delete
+    batchDeleteCart (ctx, isClear) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.profile.token) {
+          // login in
+          const ids = ctx.getters[isClear ? 'invalidList' : 'selectedList'].map(item => item.skuId)
+          deleteCart(ids).then(() => {
+            return findCartList().then(data => {
+              ctx.commit('setCartList', data.result)
+              resolve()
+            })
+          })
+        } else {
+          ctx.getters[isClear ? 'invalidList' : 'selectedList'].forEach(item => {
+            ctx.commit('deleteCart', item.skuId)
+          })
+          resolve()
+        }
+      })
+    },
+    // update cart goods info
+    updateCartSku (ctx, { oldSkuId, newSku }) {
+      // payload must have skuId, might have selected, count
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.profile.token) {
+          // logged in
+          // get old sku infor
+          // delete old sku info
+          // combine old goods count and new skuId, add to cart
+          const oldGoods = ctx.state.list.find(item => item.skuId === oldSkuId)
+          deleteCart([oldGoods.skuId]).then(() => {
+            return insertCart({ skuId: newSku.skuId, count: oldGoods.count }).then(() => {
+              return findCartList().then(data => {
+                ctx.commit('setCartList', data.result)
+                resolve()
+              })
+            })
+          })
+        } else {
+          // no login
+          // get old sku infor
+          // delete old sku info
+          // combine old and new sku info, add to cart
+          const oldGoods = ctx.state.list.find(item => item.skuId === oldSkuId)
+          ctx.commit('deleteCart', oldSkuId)
+          const { skuId, price: nowPrice, specsText: attrsText, inventory: stock } = newSku
+          const newGoods = { ...oldGoods, skuId, nowPrice, attrsText, stock }
+          ctx.commit('insertCart', newGoods)
+          resolve()
+        }
+      })
+    },
+    // merge local cart and serverside cart
+    async mergeCart (ctx) {
+      const cartList = ctx.state.list.map(goods => {
+        return {
+          skuId: goods.skuId,
+          selected: goods.selected,
+          count: goods.count
+        }
+      })
+      await mergeLocalCart(cartList)
+
+      ctx.commit('setCartList', [])
     }
   }
 }

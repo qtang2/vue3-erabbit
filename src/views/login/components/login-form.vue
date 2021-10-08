@@ -185,9 +185,13 @@ export default {
 
           store.commit('user/setUser', { id, account, nickname, avatar, token, mobile })
 
-          router.push(route.query.redirectUrl || '/')
-
-          Message({ type: 'success', text: '登录成功' })
+          // merge local cart and server cart
+          store.dispatch('cart/mergeCart').then(() => {
+            // jump
+            router.push(route.query.redirectUrl || '/')
+            // hint
+            Message({ type: 'success', text: '登录成功' })
+          })
         } catch (e) {
           if (e.response.data) {
             Message({ type: 'error', text: e.response.data.message || '登录失败' })

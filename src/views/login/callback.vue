@@ -72,10 +72,13 @@ export default {
           const { id, account, nickname, avatar, token, mobile } = data.result
 
           store.commit('user/setUser', { id, account, nickname, avatar, token, mobile })
-          // redirect to the page before
-          router.push(store.state.user.redirectUrl)
-
-          Message({ type: 'success', text: 'QQ 登录成功' })
+          // merge local cart and server cart
+          store.dispatch('cart/mergeCart').then(() => {
+            // jump
+            // redirect to the page before
+            router.push(store.state.user.redirectUrl)
+            Message({ type: 'success', text: 'QQ 登录成功' })
+          })
         }).catch(e => {
           // failed login xtx
           // isBind false means QQ bot bind with xtx

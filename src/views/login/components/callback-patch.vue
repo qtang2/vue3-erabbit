@@ -171,9 +171,13 @@ export default {
 
           store.commit('user/setUser', { id, account, nickname, avatar, token, mobile })
           // redirect to the page before
-          router.push(store.state.user.redirectUrl)
+          store.dispatch('cart/mergeCart').then(() => {
+            // jump
+            // redirect to the page before
+            router.push(store.state.user.redirectUrl)
 
-          Message({ type: 'success', text: 'QQ 信息完善成功' })
+            Message({ type: 'success', text: 'QQ 信息完善成功' })
+          })
         }).catch(e => {
           console.log(e.response.data)
           // TODO: has code 17006 error, 验证码错误

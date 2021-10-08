@@ -1,17 +1,23 @@
 <template>
   <div class="cart">
-    <a class="curr" href="#">
-      <i class="iconfont icon-cart"></i
-      ><em>{{ $store.getters["cart/validTotal"] }}</em>
-    </a>
-    <div class="layer">
+    <RouterLink class="curr" to="/cart">
+      <a class="curr" href="#">
+        <i class="iconfont icon-cart"></i
+        ><em>{{ $store.getters["cart/validTotal"] }}</em>
+      </a>
+    </RouterLink>
+    <!-- when cart has goods and current path is not cart page, show layer -->
+    <div
+      class="layer"
+      v-if="$store.getters['cart/validTotal'] > 0 && $route.path !== '/cart'"
+    >
       <div class="list">
         <div
           class="item"
           v-for="goods in $store.getters['cart/validList']"
           :key="goods.skuId"
         >
-          <RouterLink to="">
+          <RouterLink :to="`/product/${goods.id}`">
             <img :src="goods.picture" alt="" />
             <div class="center">
               <p class="name ellipsis-2">
@@ -24,7 +30,10 @@
               <p class="count">x{{ goods.count }}</p>
             </div>
           </RouterLink>
-          <i class="iconfont icon-close-new"></i>
+          <i
+            @click="depeteCart(goods.skuId)"
+            class="iconfont icon-close-new"
+          ></i>
         </div>
       </div>
       <div class="foot">
@@ -32,7 +41,9 @@
           <p>共 {{ $store.getters["cart/validTotal"] }} 件商品</p>
           <p>&yen;{{ $store.getters["cart/validAmount"] }}</p>
         </div>
-        <XtxButton type="plain">去购物车结算</XtxButton>
+        <XtxButton @click="$router.push('/cart')" type="plain"
+          >去购物车结算</XtxButton
+        >
       </div>
     </div>
   </div>
@@ -46,8 +57,15 @@ export default {
     const store = useStore()
 
     store.dispatch('cart/findCart').then(() => {
-      Message({ type: 'success', text: '购物车更新成功' })
+      // console.log('本地购物车更新成功')
+      Message({ type: 'success', text: '本地购物车更新成功' })
     })
+
+    const depeteCart = (skuId) => {
+      store.dispatch('cart/deleteCart', skuId)
+    }
+
+    return { depeteCart }
   }
 }
 </script>

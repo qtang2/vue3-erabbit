@@ -10,6 +10,7 @@
 // import XtxBreadItem from './xtx-bread-item.vue'
 import defaultImg from '@/assets/images/200.png'
 import Message from './Message'
+import Confirm from './Confirm'
 
 // require params：1. 目录  2. 是否加载子目录  3. 加载的正则匹配/string
 const importFn = require.context('./', false, /\.vue$/)
@@ -32,6 +33,7 @@ export default {
 
     // 如果你想挂载全局的属性，能够通过组件实例调用的属性   this.$message
     app.config.globalProperties.$message = Message
+    app.config.globalProperties.$confirm = Confirm
   }
 }
 
