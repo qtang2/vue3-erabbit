@@ -50,16 +50,17 @@
 </template>
 <script>
 import { useStore } from 'vuex'
-import Message from './library/Message'
+// import Message from './library/Message'
 export default {
   name: 'AppHeaderCart',
   setup () {
     const store = useStore()
 
-    store.dispatch('cart/findCart').then(() => {
-      // console.log('本地购物车更新成功')
-      Message({ type: 'success', text: '本地购物车更新成功' })
-    })
+    store.dispatch('cart/findCart')
+    // store.dispatch('cart/findCart').then(() => {
+    //   console.log('本地购物车更新成功')
+    //   Message({ type: 'success', text: '本地购物车更新成功' })
+    // })
 
     const depeteCart = (skuId) => {
       store.dispatch('cart/deleteCart', skuId)
