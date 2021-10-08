@@ -218,10 +218,14 @@ export default {
     const checkout = () => {
       if (store.getters['cart/selectedList'].length === 0) {
         return Message({ text: '至少选中一件商品才能结算' })
-      } else {
+      }
+
+      if (!store.state.user.profile.token) {
         Confirm({ text: '下单结算需要登录，您是否去登录？' }).then(() => {
           router.push('/member/checkout')
         }).catch(e => { })
+      } else {
+        router.push('/member/checkout')
       }
     }
 

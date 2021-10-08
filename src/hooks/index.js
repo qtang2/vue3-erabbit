@@ -3,8 +3,9 @@
  * @param {Object} target - dom obj
  * @param {Function} apiFn - api function
  */
-import { useIntersectionObserver } from '@vueuse/core'
-import { ref } from 'vue'
+import { useIntersectionObserver, useIntervalFn } from '@vueuse/core'
+import { ref, onUnmounted } from 'vue'
+import dayjs from 'dayjs'
 
 export const useLazyData = (apiFn) => {
   const result = ref([])
@@ -24,6 +25,35 @@ export const useLazyData = (apiFn) => {
     { threshold: 0 }
   )
   return { target, result }
+}
+
+/**
+ * @param {Integer} countdown - countdown start time
+ */
+export const usePayTime = () => {
+  // count down
+  const time = ref(null)
+  const timeText = ref('')
+  const { pause, resume } = useIntervalFn(() => {
+    time.value--
+    timeText.value = dayjs.unix(time.value).format('mm分ss秒')
+
+    if (time.value <= 0) {
+      pause()
+    }
+  }, 1000, false)
+
+  const start = (countdown) => {
+    time.value = countdown
+    timeText.value = dayjs.unix(time.value).format('mm分ss秒')
+    resume()
+  }
+
+  onUnmounted(() => {
+    pause()
+  })
+
+  return { start, timeText }
 }
 // export const useLazyData = (target, apiFn) => {
 //   const result = ref([])

@@ -30,3 +30,11 @@ export const editAddress = (address) => {
 export const submitOrder = (order) => {
   return request('/member/order', 'post', order)
 }
+
+/**
+ * get order detail
+ * @param {String} id - order id
+ */
+export const findOrderDetail = (id) => {
+  return request('/member/order/' + id, 'get')
+}
