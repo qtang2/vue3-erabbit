@@ -38,3 +38,46 @@ export const submitOrder = (order) => {
 export const findOrderDetail = (id) => {
   return request('/member/order/' + id, 'get')
 }
+
+/**
+ * get order list
+ * @param {String} id - order id
+ */
+export const findOrderList = ({ page = 1, pageSize = 10, orderState = 0 }) => {
+  return request('/member/order', 'get', { page, pageSize, orderState })
+}
+/**
+ * cancel order
+ * @param {String} orderId - order Id
+ * @param {String} cancelReason - reason
+ * @returns Promise
+ */
+export const cancelOrder = (orderId, cancelReason) => {
+  return request(`/member/order/${orderId}/cancel`, 'put', { cancelReason })
+}
+
+/**
+ * delete order
+ * @param {Array<string>} ids - order ids
+ * @returns
+ */
+export const deleteOrder = (ids) => {
+  return request('/member/order', 'delete', { ids })
+}
+/**
+ * confirm order
+ * @param {Array<string>} id - order id
+ * @returns
+ */
+export const confirmOrder = (id) => {
+  return request(`/member/order/${id}/receipt`, 'put')
+}
+
+/**
+ * check order logistics
+ * @param {String} id - order id
+ * @returns
+ */
+export const logisticsOrder = (id) => {
+  return request(`/member/order/${id}/logistics`, 'get')
+}

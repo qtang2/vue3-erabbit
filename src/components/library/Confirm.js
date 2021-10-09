@@ -1,5 +1,5 @@
 import { createVNode, render } from 'vue'
-import XtxConfrim from './xtx-confirm'
+import XtxConfirm from './xtx-confirm'
 
 const div = document.createElement('div')
 div.setAttribute('class', 'xtx-confirm-container')
@@ -21,7 +21,7 @@ export default ({ title, text }) => {
       render(null, div)
       resolve()
     }
-    const vn = createVNode(XtxConfrim, { title, text, cancelCallback, submitCallback })
+    const vn = createVNode(XtxConfirm, { title, text, cancelCallback, submitCallback })
     render(vn, div)
   })
 }
