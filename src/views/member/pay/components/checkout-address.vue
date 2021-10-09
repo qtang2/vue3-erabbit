@@ -129,6 +129,7 @@ export default {
         // 1. add address
         // eslint-disable-next-line vue/no-mutating-props
         // formData is address, when modify formData, value will be changed everywhere
+        // which is when we open the add address dialog we will reset the form, so the formData will be set to empty
         // so need to make a copy of formData
         const jsonStr = JSON.stringify(formData)
         // eslint-disable-next-line vue/no-mutating-props

@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import store from '@/store'
+import { h } from 'vue'
 const Layout = () => import('@/views/Layout')
 const Home = () => import('@/views/home/index')
 const TopCategory = () => import('@/views/category/index')
@@ -11,6 +12,10 @@ const Cart = () => import('@/views/cart/index')
 const Checkout = () => import('@/views/member/pay/checkout')
 const PayIndex = () => import('@/views/member/pay/index')
 const PayResult = () => import('@/views/member/pay/result')
+const MemberLayout = () => import('@/views/member/Layout')
+const MemberHome = () => import('@/views/member/home')
+const MemberOrder = () => import('@/views/member/order')
+const MemberOrderDetail = () => import('@/views/member/order/detail')
 
 const routes = [
   {
@@ -24,7 +29,26 @@ const routes = [
       { path: '/cart', component: Cart },
       { path: '/member/checkout', component: Checkout },
       { path: '/member/pay', component: PayIndex },
-      { path: '/pay/callback', component: PayResult }
+      { path: '/pay/callback', component: PayResult },
+      {
+        path: '/member',
+        component: MemberLayout,
+        children: [
+          { path: '/member', component: MemberHome },
+          // vue3.0 需要有嵌套关系才能模糊匹配
+          {
+            path: '/member/order',
+            component: { render: () => h(<RouterView />) },
+            children: [
+              { path: '', component: MemberOrder },
+              { path: ':id', component: MemberOrderDetail }
+            ]
+          }
+          // vue2.0 can use below
+          // { path: '/member/order', component: MemberOrder },
+          // { path: '/member/order/:id', component: MemberOrderDetail }
+        ]
+      }
     ]
   },
   {

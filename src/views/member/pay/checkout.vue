@@ -130,10 +130,10 @@ export default {
     const router = useRouter()
     const submitOrderFn = () => {
       if (!reqParams.addressId) {
-        return Message({ text: '请选择收货地址', type: 'success' })
+        return Message({ text: '请选择收货地址' })
       }
       submitOrder(reqParams).then(data => {
-        Message({ text: '提交订单成功' })
+        Message({ text: '提交订单成功', type: 'success' })
         // jump to pay page
         router.push(`/member/pay?orderId=${data.result.id}`)
       })
