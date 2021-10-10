@@ -1,10 +1,17 @@
 import request from '@/utils/request'
 
 /**
- * get order info
+ * generate order info based on cart goods
  */
 export const findCheckoutInfo = () => {
   return request('/member/order/pre', 'get')
+}
+
+/**
+ * generate order info based old orders
+ */
+export const findOrderRepurchase = (id) => {
+  return request(`/member/order/repurchase/${id}`, 'get')
 }
 
 /**

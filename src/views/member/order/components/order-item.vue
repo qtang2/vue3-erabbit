@@ -19,7 +19,7 @@
       <div class="column goods">
         <ul>
           <li v-for="goods in order.skus" :key="goods.id">
-            <RouterLink class="image" :to="`/product/${goods.id}`">
+            <RouterLink class="image" :to="`/product/${goods.spuId}`">
               <img :src="goods.image" alt="" />
             </RouterLink>
             <div class="info">
@@ -92,7 +92,11 @@
           <a href="javascript:;">取消订单</a>
         </p>
         <p v-if="[2, 3, 4, 5].includes(order.orderState)">
-          <a href="javascript:;">再次购买</a>
+          <a
+            @click="$router.push(`/member/checkout?orderId=${order.id}`)"
+            href="javascript:;"
+            >再次购买</a
+          >
         </p>
         <p v-if="[4, 5].includes(order.orderState)">
           <a href="javascript:;">申请售后</a>

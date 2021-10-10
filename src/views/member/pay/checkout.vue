@@ -94,22 +94,35 @@
   </div>
 </template>
 <script>
-import { findCheckoutInfo, submitOrder } from '@/api/order'
+import { findCheckoutInfo, submitOrder, findOrderRepurchase } from '@/api/order'
 import CheckoutAddress from './components/checkout-address'
 
 import { ref, reactive } from 'vue'
 import Message from '@/components/library/Message'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 export default {
   name: 'XtxPayCheckoutPage',
   components: { CheckoutAddress },
   setup () {
     // create order
+    // two conditions
+    // 1. create order based on cart
+    // 2. based on already bought order(purchase again)
     const order = ref(null)
-    findCheckoutInfo().then(data => {
-      order.value = data.result
-      reqParams.goods = data.result.goods.map(({ skuId, count }) => ({ skuId, count }))
-    })
+    const route = useRoute()
+    if (route.query.orderId) {
+      // based on old-order goods
+      findOrderRepurchase(route.query.orderId).then(data => {
+        order.value = data.result
+        reqParams.goods = data.result.goods.map(({ skuId, count }) => ({ skuId, count }))
+      })
+    } else {
+      // based on cart goods
+      findCheckoutInfo().then(data => {
+        order.value = data.result
+        reqParams.goods = data.result.goods.map(({ skuId, count }) => ({ skuId, count }))
+      })
+    }
 
     // submit order
     const reqParams = reactive({

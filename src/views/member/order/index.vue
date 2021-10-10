@@ -100,7 +100,7 @@ export default {
 }
 
 // get logistics
-const useLogistics = () => {
+export const useLogistics = () => {
   const orderLogisticsCom = ref(null)
   const handleLogistics = (order) => {
     orderLogisticsCom.value.open(order)
@@ -109,7 +109,7 @@ const useLogistics = () => {
 }
 
 // cancel order
-const useCancel = () => {
+export const useCancel = () => {
   const orderCancelCom = ref(null)
   const handleCancel = (order) => {
     orderCancelCom.value.open(order)
@@ -118,7 +118,7 @@ const useCancel = () => {
 }
 
 // confirm order
-const useConfirm = () => {
+export const useConfirm = () => {
   const handleConfirm = (item) => {
     Confirm({ text: '您确认收到货吗？确认后货款将会打给卖家。' }).then(() => {
       confirmOrder(item.id).then(() => {

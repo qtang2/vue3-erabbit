@@ -45,7 +45,7 @@ export default {
 }
 </script>
 <style scoped lang="less">
-.xtx-dialog ::v-deep .wrapper {
+.xtx-dialog :deep(.wrapper) {
   width: 680px;
 }
 .order-logistics-goods {
